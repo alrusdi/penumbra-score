@@ -1,52 +1,55 @@
 <template>
   <div class="relative flex flex-col text-sm">
-    <label>
+    <div>
       <div>{{ label }}</div>
-      <input
-        type="number"
-        :value="modelValue"
-        @focus="togglePresets"
-        @input="$emit('update:modelValue', Number($event.target.value))"
-        class="fwp-input bg-gray-200 text-black rounded-md px-2 py-1 w-[100px] font-sans text-sm"
-      />
-    </label>
-    <div
-      v-if="showPresets"
-      class="absolute top-full left-0 mt-1 bg-white text-black rounded shadow-lg z-10 p-1 min-w-[350px]"
-    >
-      <div class="grid grid-cols-5 gap-1">
-        <button
-          class="btn btn-sm btn-soft btn-secondary"
-          @click.prevent="resetValue()"
-        >
-        x
-        </button>
-        <button
-          v-for="n in 49"
-          :key="n"
-          class="btn btn-sm btn-outline btn-primary"
-          @click.prevent="addValue(n+1)"
-        >+{{ n+1 }}</button>
+      <div class="join">
+        <input
+          type="text"
+          :value="modelValue"
+          @input="$emit('update:modelValue', Number($event.target.value))"
+          class="input text-lg input-sm join-item max-w-[45px]" />
+        <button class="btn btn-square btn-sm join-item" @click.prevent="displayPresets()">+</button>
       </div>
     </div>
+    <dialog :id="modal_id" class="modal z-10">
+      <div class="modal-box max-w-[320px]">
+        <div class="mb-1 grid grid-cols-5 gap-2">
+          <div
+            class="btn btn-sm btn-outline max-w-[44px] col-span-3"
+          >{{ modelValue }}</div>
+          <button
+            class="btn btn-sm btn-outline btn-secondary max-w-[44px] whitespace-nowrap"
+            @click.prevent="resetValue()"
+          >➔0</button>
+          <form method="dialog">
+            <button class="btn btn-sm btn-outline btn-error max-w-[44px] whitespace-nowrap">✕</button>
+          </form>
+        </div>
+        <div class="grid grid-cols-5 gap-2">
+          <button v-for="n in 20" :key="n" class="btn btn-sm btn-outline btn-primary max-w-[44px]" @click.prevent="addValue(n)">+{{
+            n }}</button>
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const props = defineProps(['label', 'modelValue']);
+const props = defineProps(['label', 'modelValue', 'tgt']);
 
 const emit = defineEmits(['update:modelValue']);
 
 const showPresets = ref(false);
+const modal_id = ref('presets_modal_' + props.tgt);
 
-function togglePresets() {
-  showPresets.value = true;
+function displayPresets() {
+  document.getElementById(modal_id.value).showModal();
 }
 
 function hidePresets() {
-  showPresets.value = false;
+  document.getElementById(modal_id.value).close();
 }
 
 const resetValue = () => {
@@ -55,18 +58,6 @@ const resetValue = () => {
 
 const addValue = (amount) => {
   emit('update:modelValue', props.modelValue + amount);
+  hidePresets();
 }
-
-function handleClickOutside(event) {
-  if (!event.target.closest('.fwp-input')) {
-    hidePresets();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-});
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 </script>
