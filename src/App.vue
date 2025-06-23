@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-900 via-orange-800 to-yellow-700 text-white p-6">
+  <div class="min-h-screen text-white pt-6">
     <div v-for="(player, index) in players" :key="index" class="bg-black bg-opacity-30 p-4 rounded-xl mb-4">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2 join">
@@ -28,14 +28,15 @@
       <div class="flex flex-wrap gap-2 justify-center">
         <FieldWithPresets label="Аркана" v-model="player.arcana" :tgt="'arcana_'+index" />
         <FieldWithPresets label="Испытания" v-model="player.trials" :tgt="'trials_'+index" />
-        <FieldWithPresets label="Штрафы" v-model="player.penalties" :tgt="'penalties_'+index" />
+        <FieldWithPresets label="Ранения" v-model="player.penalties" :tgt="'penalties_'+index" />
         <FieldWithPresets label="Контракты" v-model="player.contracts" :tgt="'contracts_'+index" />
         <FieldWithPresets label="Планшет" v-model="player.tablet" :tgt="'tablet_'+index" />
         <FieldWithPresets label="Цели" v-model="player.goals" :tgt="'goals_'+index" />
+        <FieldWithPresets label="Свет/Тьма" v-model="player.mentality" :tgt="'mentality_'+index" />
       </div>
 
       <div class="mt-3">
-        <div class="divider text-xs m-0">символы</div>
+        <div class="divider text-xs m-0">количество символов</div>
         <div class="flex flex-wrap gap-2 justify-center">
           <FieldWithPresets label="Дракон" v-model="player.symbols[0]" :tgt="'dragons_'+index" />
           <FieldWithPresets label="Волки" v-model="player.symbols[1]" :tgt="'wolves_'+index" />
@@ -68,6 +69,7 @@ const createPlayer = () => ({
   contracts: 0,
   tablet: 0,
   goals: 0,
+  mentality: 0,
   symbols: Array(6).fill(0)
 });
 
@@ -89,9 +91,7 @@ function calculateSymbolPoints(symbols) {
   const fullSets = Math.min(...symbols);
   points += fullSets * 7;
 
-  const remaining = symbols.map(s => s - fullSets);
-
-  for (let count of remaining) {
+  for (let count of symbols) {
     if (count >= 5) points += 9;
     else if (count === 4) points += 6;
     else if (count === 3) points += 4;
@@ -109,7 +109,8 @@ function calculateScore(player) {
     player.trials +
     player.contracts +
     player.tablet +
-    player.goals -
+    player.goals +
+    player.mentality -
     player.penalties +
     symbolPoints
   );
